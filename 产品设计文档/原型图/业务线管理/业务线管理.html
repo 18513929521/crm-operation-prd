@@ -1,0 +1,2023 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>业务线管理 - NovoGrowth</title>
+  <style>
+    :root {
+      --green: #7AC143;
+      --green-hover: #6BB035;
+      --green-text: #6AAE2A;
+      --green-soft: #F3F8E8;
+      --green-row: #F4F9E6;
+      --green-bar: #8BC53F;
+      --text: #303133;
+      --text-2: #606266;
+      --text-3: #909399;
+      --text-4: #C0C4CC;
+      --line: #EBEEF5;
+      --line-2: #E4E7ED;
+      --bg: #F4F5F7;
+      --sidebar: #F7F8FA;
+      --white: #fff;
+      --red: #F56C6C;
+      --red-soft: #FEF0F0;
+      --shadow: 0 10px 30px rgba(31, 35, 41, 0.08);
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    html {
+      zoom: 1;
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+    body {
+      font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      font-size: 14px;
+      overflow: hidden;
+    }
+    button, input, select, textarea { font-family: inherit; }
+    button { cursor: pointer; border: none; background: none; }
+    a { color: var(--green-text); text-decoration: none; }
+
+    .app { display: flex; height: 100%; }
+
+    .sidebar {
+      width: 220px; flex-shrink: 0;
+      background: var(--sidebar);
+      border-right: 1px solid var(--line);
+      display: flex; flex-direction: column;
+      padding: 18px 12px 16px;
+    }
+    .logo {
+      display: flex; align-items: center; gap: 8px;
+      padding: 4px 10px 22px;
+      font-size: 18px; font-weight: 700; color: var(--green);
+    }
+    .logo-mark {
+      width: 28px; height: 28px; border-radius: 8px;
+      background: linear-gradient(135deg, #9AD64A, #6BB035);
+      display: grid; place-items: center; color: #fff;
+    }
+    .nav { display: flex; flex-direction: column; gap: 2px; }
+    .nav-item, .nav-sub {
+      display: flex; align-items: center; gap: 10px;
+      width: 100%; text-align: left;
+      color: var(--text-2); border-radius: 8px;
+      padding: 10px 12px; font-size: 14px; transition: 0.15s ease;
+    }
+    a.nav-sub { text-decoration: none; color: var(--text-2); }
+    .nav-item:hover, .nav-sub:hover { background: #eef1f4; color: var(--text); }
+    .nav-item .chev { margin-left: auto; color: var(--text-4); transition: transform 0.2s; }
+    .nav-item.open .chev { transform: rotate(180deg); }
+    .nav-group.open .nav-subs { display: flex; }
+    .nav-subs {
+      display: none; margin: 4px 0 6px 12px; padding-left: 12px;
+      border-left: 2px solid var(--green); flex-direction: column; gap: 2px;
+    }
+    .nav-sub.active { background: var(--green); color: #fff; font-weight: 600; }
+    .nav-ico { width: 18px; height: 18px; display: grid; place-items: center; color: var(--text-3); }
+    .nav-ico svg { width: 18px; height: 18px; }
+
+    .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    .topbar {
+      height: 64px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px;
+    }
+    .top-search {
+      width: 280px; height: 36px; border-radius: 18px;
+      background: #fff; border: 1px solid var(--line);
+      display: flex; align-items: center; gap: 8px;
+      padding: 0 14px; color: var(--text-4);
+    }
+    .top-search input {
+      border: none; outline: none; width: 100%;
+      background: transparent; color: var(--text); font-size: 13px;
+    }
+    .top-right { display: flex; align-items: center; gap: 14px; }
+    .icon-btn {
+      width: 34px; height: 34px; border-radius: 50%;
+      display: grid; place-items: center; color: var(--text-3);
+    }
+    .icon-btn:hover { background: #fff; color: var(--text-2); }
+    .user {
+      display: flex; align-items: center; gap: 8px;
+      padding: 4px 8px 4px 4px; border-radius: 20px;
+    }
+    .avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: linear-gradient(135deg, #f6d365, #fda085);
+      display: grid; place-items: center; color: #fff; font-size: 12px; font-weight: 700;
+    }
+    .user-name { font-size: 13px; color: var(--text-2); }
+    .help-dot {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: #ffd6de; color: #e85a71;
+      display: grid; place-items: center; font-weight: 700;
+    }
+
+    .workspace { flex: 1; min-height: 0; padding: 0 20px 20px; display: flex; }
+    .page-card {
+      flex: 1; min-width: 0; background: #fff;
+      border-radius: 16px; border: 1px solid #f0f1f3;
+      display: flex; flex-direction: column; overflow: hidden;
+      padding: 22px 24px 12px;
+    }
+    .page-hd {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 8px; flex-shrink: 0; gap: 16px;
+    }
+    .page-title { font-size: 24px; font-weight: 700; }
+    .btn-add {
+      height: 36px; padding: 0 16px; border-radius: 18px;
+      background: var(--green); color: #fff; font-size: 13px; font-weight: 600;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-add:hover { background: var(--green-hover); }
+
+    .filters {
+      display: flex; align-items: center; gap: 16px;
+      margin: 14px 0 12px; flex-wrap: wrap; flex-shrink: 0;
+    }
+    .filter-item {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; color: var(--text); font-weight: 600;
+    }
+    .filter-item input, .filter-item select {
+      height: 32px; border: 1px solid var(--line); border-radius: 16px;
+      padding: 0 12px; outline: none; font-size: 13px; color: var(--text-2);
+      background: #fff; min-width: 160px; font-weight: 400;
+    }
+    .filter-item input:focus, .filter-item select:focus { border-color: var(--green); }
+
+    .toolbar {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; margin: 0 0 16px; flex-shrink: 0;
+    }
+    .search-box {
+      width: 240px; height: 34px; border-radius: 17px;
+      background: #f7f8fa; display: flex; align-items: center; gap: 8px;
+      padding: 0 12px; color: var(--text-4);
+    }
+    .search-box input {
+      border: none; outline: none; background: transparent;
+      width: 100%; font-size: 13px; color: var(--text);
+    }
+    .table-wrap {
+      flex: 1; min-height: 0; overflow: auto;
+      border: 1px solid var(--line); border-radius: 12px;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      text-align: left; font-weight: 500; color: var(--text-3);
+      font-size: 13px; padding: 10px 12px; border-bottom: 1px solid var(--line);
+      white-space: nowrap; background: #fafbfc;
+      position: sticky; top: 0; z-index: 1;
+    }
+    tbody td {
+      padding: 12px; font-size: 13px; color: var(--text-2);
+      border-bottom: 1px solid #f3f4f6; white-space: nowrap;
+    }
+    td.cell-desc { white-space: normal; line-height: 1.5; max-width: 320px; }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr { cursor: pointer; }
+    tbody tr:hover { background: #fafbf8; }
+    tbody tr.selected { background: var(--green-soft); }
+    tbody tr.selected td:first-child { box-shadow: inset 3px 0 0 var(--green-bar); }
+    .ops { display: flex; gap: 12px; }
+    .ops .edit, .ops .publish, .ops .on { color: var(--green-text); }
+    .ops .del, .ops .off { color: var(--red); }
+    .ops button:hover { text-decoration: underline; }
+    .empty { padding: 48px 0; text-align: center; color: var(--text-4); font-size: 13px; }
+    .ver-pill {
+      display: inline-flex; align-items: center; height: 22px; padding: 0 8px;
+      border-radius: 11px; background: var(--green-soft); color: var(--green-text);
+      font-size: 12px; font-weight: 600; flex-shrink: 0;
+    }
+
+    .pager {
+      display: flex; justify-content: flex-end; align-items: center;
+      gap: 6px; padding: 10px 0 4px; color: var(--text-3); font-size: 13px; flex-shrink: 0;
+    }
+    .pager button {
+      min-width: 28px; height: 28px; padding: 0 8px;
+      border-radius: 6px; color: var(--text-3);
+    }
+    .pager button:hover { background: #f5f7fa; color: var(--text); }
+    .pager button.active { background: var(--green); color: #fff; font-weight: 600; }
+    .pager button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .overlay {
+      position: fixed; inset: 0;
+      background: rgba(255,255,255,0.55);
+      backdrop-filter: blur(3px);
+      z-index: 50;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.22s ease;
+    }
+    .overlay.show { opacity: 1; pointer-events: auto; }
+
+    .modal {
+      position: fixed; top: 12px; right: 12px; bottom: 12px;
+      width: 1080px; max-width: calc(100vw - 24px);
+      background: #fff; border-radius: 16px;
+      box-shadow: var(--shadow); z-index: 60;
+      display: flex; flex-direction: column; overflow: hidden;
+      transform: translateX(calc(100% + 24px));
+      transition: transform 0.28s ease;
+    }
+    .modal.show { transform: translateX(0); }
+    .modal-hd {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 22px 10px; font-size: 16px; font-weight: 700; flex-shrink: 0;
+    }
+    .modal-close {
+      width: 28px; height: 28px; border-radius: 6px; color: var(--text-3); font-size: 18px;
+    }
+    .modal-close:hover { background: #f5f7fa; }
+    .modal-body { flex: 1; overflow: auto; padding: 6px 22px 12px; }
+    .modal-ft {
+      display: flex; justify-content: flex-end; gap: 10px;
+      padding: 14px 22px 18px; flex-shrink: 0; border-top: 1px solid var(--line);
+    }
+
+    .section {
+      border: 1px solid var(--line); border-radius: 12px;
+      padding: 16px 18px 18px; margin-bottom: 14px;
+    }
+    .section h3 {
+      font-size: 15px; font-weight: 700; margin-bottom: 14px;
+      padding-bottom: 12px; border-bottom: 1px solid var(--line);
+    }
+    .section-hd {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; margin-bottom: 14px; padding-bottom: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+    .section-hd h3 { margin: 0; padding: 0; border: none; }
+    .section-title { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    .tip { font-size: 12px; color: var(--text-4); margin: -6px 0 12px; }
+    .form-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
+    .field { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    .field label {
+      font-size: 13px; color: var(--text); font-weight: 600; white-space: nowrap;
+    }
+    .field .req { color: var(--red); margin-right: 2px; }
+    .field input, .field select {
+      flex: 1; min-width: 0; height: 34px; border: 1px solid var(--line);
+      border-radius: 16px; padding: 0 12px; outline: none; font-size: 13px;
+      color: var(--text-2); background: #fff;
+    }
+    .field input:focus, .field select:focus { border-color: var(--green); }
+
+    .mode-switch {
+      display: flex; flex-shrink: 0; padding: 2px; height: 34px; box-sizing: border-box;
+      background: #F2F3F5; border-radius: 17px;
+    }
+    .mode-switch button {
+      height: 30px; padding: 0 14px; border-radius: 15px;
+      font-size: 13px; color: var(--text-3);
+    }
+    .mode-switch button.active {
+      background: #fff; color: var(--text); font-weight: 600;
+      box-shadow: 0 1px 2px rgba(0,0,0,.06);
+    }
+    .prompt-box {
+      width: 100%; min-height: 148px; border: 1px solid var(--line);
+      border-radius: 10px; padding: 12px 14px; font-size: 13px;
+      color: var(--text); outline: none; resize: vertical; line-height: 1.6; background: #fff;
+    }
+    .prompt-box:focus { border-color: var(--green); }
+    .hint { font-size: 12px; color: var(--text-4); }
+    .prompt-hint { display: block; margin: 8px 0 0; }
+
+    .rule-toolbar { margin-bottom: 16px; }
+    .rule-toolbar .hint { display: block; margin: 8px 0 0; }
+    .btn-cond {
+      height: 34px; padding: 0 14px; border-radius: 17px;
+      background: var(--green); color: #fff; font-size: 13px; font-weight: 600;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-cond:hover { background: var(--green-hover); }
+    .rule-list {
+      position: relative; display: flex; flex-direction: column; gap: 12px;
+      padding: 2px 0 2px 46px; overflow: visible;
+    }
+    .rule-list.has-logic::before {
+      content: ""; position: absolute; left: 18px; top: 17px; bottom: 17px;
+      width: 1px; background: #DCDFE6;
+    }
+    .rule-row { position: relative; display: flex; align-items: center; gap: 8px; overflow: visible; }
+    .rule-list.has-logic .rule-row::before {
+      content: ""; position: absolute; left: -28px; top: 50%;
+      width: 18px; height: 1px; background: #DCDFE6;
+    }
+    .logic-pill {
+      position: absolute; left: 4px; top: 50%; transform: translateY(-50%);
+      z-index: 2; width: 30px; height: 26px; padding: 0;
+      border: 1px solid #DCDFE6; border-radius: 6px; background: #fff;
+      color: var(--text-2); font-size: 12px; text-align: center;
+      appearance: none; cursor: pointer;
+    }
+    .kind-switch {
+      display: flex; flex-shrink: 0; padding: 2px; height: 34px; box-sizing: border-box;
+      background: #F2F3F5; border-radius: 17px;
+    }
+    .kind-switch button {
+      height: 30px; padding: 0 12px; border-radius: 15px;
+      font-size: 13px; color: var(--text-3);
+    }
+    .kind-switch button[data-set-kind="field"].active {
+      background: #fff; color: var(--text); font-weight: 600;
+      box-shadow: 0 1px 2px rgba(0,0,0,.06);
+    }
+    .kind-switch button[data-set-kind="stat"].active {
+      background: #3D7EFF; color: #fff; font-weight: 600;
+    }
+    .rule-row > select, .rule-row > .val, .filter-btn, .multi-btn {
+      height: 34px; border: 1px solid var(--line); border-radius: 8px;
+      padding: 0 10px; outline: none; font-size: 13px; color: var(--text-2);
+      background: #fff; min-width: 0; flex: 1 1 0;
+    }
+    .rule-row > select:focus, .rule-row > .val:focus, .filter-btn.open, .multi-btn.open { border-color: var(--green); }
+    .rule-row > select:disabled, .rule-row > .val:disabled, .filter-btn:disabled, .multi-btn:disabled {
+      background: #F7F8FA; color: var(--text-4); cursor: not-allowed;
+    }
+    .multi-wrap {
+      position: relative; flex: 1 1 0; min-width: 0; display: flex; align-items: stretch; z-index: 2;
+    }
+    .multi-wrap.is-open { z-index: 25; }
+    .multi-btn {
+      width: 100%; display: flex; align-items: center; gap: 6px; text-align: left; cursor: pointer;
+    }
+    .multi-btn .ph { color: var(--text-4); }
+    .multi-btn span:first-child { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .multi-panel {
+      position: absolute; left: 0; top: calc(100% + 6px); z-index: 30;
+      box-sizing: border-box; width: max(100%, 220px); max-height: 220px; overflow: auto;
+      background: #fff; border: 1px solid var(--line); border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(31, 35, 41, 0.12); padding: 6px 0; display: none;
+    }
+    .multi-panel.show { display: block; }
+    .multi-opt {
+      display: flex; align-items: center; gap: 8px; padding: 7px 12px;
+      font-size: 13px; color: var(--text-2); cursor: pointer; margin: 0;
+    }
+    .multi-opt:hover { background: #F5F7FA; }
+    .multi-opt input { margin: 0; flex-shrink: 0; }
+    .filter-panel .multi-wrap { flex: 1; min-width: 0; }
+    .filter-panel .multi-btn { height: 32px; }
+    .filter-wrap {
+      position: relative; flex: 1.4 1 110px; min-width: 110px; display: flex;
+      align-items: stretch; z-index: 2;
+    }
+    .filter-wrap.is-open { z-index: 20; }
+    .rule-row > select[data-k="agg"] { flex: 1.1 1 96px; min-width: 96px; }
+    .filter-btn {
+      width: 100%; display: flex; align-items: center; gap: 6px; text-align: left; cursor: pointer;
+    }
+    .filter-btn .ph { color: var(--text-4); }
+    .filter-btn span:first-child { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .filter-caret { flex-shrink: 0; color: var(--text-4); font-size: 10px; }
+    .filter-panel {
+      position: absolute; left: 0; top: calc(100% + 6px); z-index: 30;
+      box-sizing: border-box; width: max(100%, 280px); min-width: 280px;
+      background: #fff; border: 1px solid var(--line); border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(31, 35, 41, 0.12);
+      padding: 12px; display: none;
+    }
+    .filter-panel.show { display: block; }
+    .filter-panel label {
+      display: block; font-size: 12px; color: var(--text-3); margin-bottom: 6px; font-weight: 600;
+    }
+    .filter-panel .pair { display: flex; gap: 8px; margin-bottom: 10px; }
+    .filter-panel select, .filter-panel input {
+      height: 32px; flex: 1; min-width: 0; border: 1px solid var(--line); border-radius: 8px;
+      padding: 0 8px; font-size: 13px; color: var(--text-2); outline: none; background: #fff;
+    }
+    .filter-panel select:focus, .filter-panel input:focus { border-color: var(--green); }
+    .filter-panel .note { font-size: 12px; color: #3D7EFF; line-height: 1.5; }
+    .rule-minus {
+      width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+      color: var(--text-4); font-size: 18px; line-height: 1;
+      display: grid; place-items: center;
+    }
+    .rule-minus:hover { color: var(--red); background: var(--red-soft); }
+
+    .btn-sm-add {
+      height: 32px; padding: 0 12px; border-radius: 16px;
+      background: var(--green); color: #fff; font-size: 12px; font-weight: 600;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-sm-add:hover { background: var(--green-hover); }
+    .fields-table-wrap { border: none; overflow: visible; }
+    .fields-table-wrap table { width: 100%; }
+    .fields-table-wrap tbody td { white-space: nowrap; }
+
+    .check {
+      display: inline-flex; align-items: center; gap: 6px; color: var(--text-2); cursor: pointer;
+    }
+    .check input {
+      width: 14px; height: 14px; min-width: 14px; accent-color: var(--green);
+      margin: 0; padding: 0; border: none; background: transparent;
+    }
+    .drag {
+      width: 20px; color: var(--text-4); cursor: grab; display: inline-grid; place-items: center;
+      letter-spacing: -2px; font-size: 12px; line-height: 1; user-select: none;
+    }
+    .fld-input {
+      width: 100%; max-width: 160px; height: 30px; border: 1px solid var(--line);
+      border-radius: 6px; padding: 0 8px; outline: none; font-size: 12px; color: var(--text-2);
+    }
+    .fld-input:focus { border-color: var(--green); }
+    .fld-input:disabled { background: #f5f7fa; color: var(--text-3); }
+    .fld-select {
+      height: 30px; border: 1px solid var(--line); border-radius: 6px;
+      padding: 0 6px; font-size: 12px; color: var(--text-2); outline: none; background: #fff;
+      min-width: 110px;
+    }
+    .opt-preview { font-size: 12px; color: var(--text-3); max-width: 160px; overflow: hidden; text-overflow: ellipsis; }
+
+    .btn { height: 34px; padding: 0 18px; border-radius: 17px; font-size: 13px; }
+    .btn-ghost { border: 1px solid var(--line); color: var(--text-2); background: #fff; }
+    .btn-ghost:hover { border-color: var(--green); color: var(--green-text); }
+    .btn-save { background: var(--green-soft); color: var(--green-text); font-weight: 600; }
+    .btn-pub { background: var(--green); color: #fff; font-weight: 600; }
+    .btn-pub:hover { background: var(--green-hover); }
+
+    .dialog {
+      position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      width: 440px; background: #fff; border-radius: 12px; box-shadow: var(--shadow);
+      z-index: 70; display: none; padding: 20px 20px 16px;
+    }
+    .dialog.show { display: block; }
+    .dialog h4 { font-size: 15px; margin-bottom: 14px; }
+    .dialog .field { margin-bottom: 12px; }
+    .dialog .field.top { align-items: flex-start; }
+    .dialog .field.top > label { padding-top: 8px; }
+    .dialog-ft { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+    .opt-box {
+      flex: 1; min-width: 0; border: 1px solid var(--line); border-radius: 8px;
+      padding: 10px 12px; min-height: 88px; background: #fff;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .opt-list { display: flex; flex-direction: column; gap: 8px; }
+    .opt-row { display: flex; align-items: center; gap: 8px; }
+    .opt-row input {
+      flex: 1; min-width: 0; height: 32px; border: 1px solid var(--line);
+      border-radius: 6px; padding: 0 10px; outline: none; font-size: 13px; color: var(--text-2);
+    }
+    .opt-row input:focus { border-color: var(--green); }
+    .opt-row .opt-del {
+      width: 28px; height: 28px; border-radius: 6px; color: var(--text-4);
+      display: grid; place-items: center; flex-shrink: 0;
+    }
+    .opt-row .opt-del:hover { background: var(--red-soft); color: var(--red); }
+    .opt-add {
+      align-self: flex-start; display: inline-flex; align-items: center; gap: 4px;
+      color: var(--green-text); font-size: 13px; font-weight: 600; padding: 4px 2px;
+    }
+    .opt-add:hover { color: var(--green-hover); }
+
+    .confirm {
+      position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      width: 400px; max-width: calc(100vw - 32px); background: #fff; border-radius: 12px;
+      box-shadow: var(--shadow); z-index: 70; display: none; padding: 22px 20px 16px;
+    }
+    .confirm.show { display: block; }
+    .confirm p { font-size: 14px; color: var(--text-2); margin-bottom: 18px; line-height: 1.6; }
+    .confirm-ft { display: flex; justify-content: flex-end; gap: 8px; }
+    .toast {
+      position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%);
+      background: #303133; color: #fff; padding: 8px 16px; border-radius: 8px;
+      font-size: 13px; z-index: 80; display: none;
+    }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-thumb { background: #dcdfe6; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="logo">
+        <span class="logo-mark">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M12 3c2 3 1 6-1 8 3 0 6 2 8 5-5 1-9-1-11-4-1 3-1 6 1 9-5-3-7-8-5-13 2-1 5-2 8-5z" fill="#fff"/>
+          </svg>
+        </span>
+        NovoGrowth
+      </div>
+      <nav class="nav">
+        <button class="nav-item">
+          <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-9.5z"/></svg></span>
+          首页
+        </button>
+        <div class="nav-group open">
+          <button class="nav-item open" data-toggle="app">
+            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>
+            应用管理 <span class="chev">▾</span>
+          </button>
+          <div class="nav-subs"><button class="nav-sub">应用中心</button></div>
+        </div>
+        <div class="nav-group open">
+          <button class="nav-item open" data-toggle="xleads">
+            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V5m0 14h16M8 15l3-4 3 3 5-7"/></svg></span>
+            XLeads <span class="chev">▾</span>
+          </button>
+          <div class="nav-subs">
+            <a class="nav-sub" href="../运营端-标签管理/index.html">标签管理</a>
+            <button class="nav-sub active">业务线管理</button>
+          </div>
+        </div>
+        <div class="nav-group open">
+          <button class="nav-item open" data-toggle="product">
+            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8.5 12 4l8 4.5v7L12 20l-8-4.5v-7z"/><path d="M12 12v8M4 8.5l8 3.5 8-3.5"/></svg></span>
+            产品中心 <span class="chev">▾</span>
+          </button>
+          <div class="nav-subs">
+            <a class="nav-sub" href="../运营端-产品管理/index.html">产品管理</a>
+            <a class="nav-sub" href="../运营端-权益项管理/index.html">权益项配置</a>
+          </div>
+        </div>
+        <div class="nav-group open">
+          <button class="nav-item open" data-toggle="commerce">
+            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span>
+            商务管理 <span class="chev">▾</span>
+          </button>
+          <div class="nav-subs"><a class="nav-sub" href="../运营端-报价管理/index.html">报价管理</a></div>
+        </div>
+        <div class="nav-group open">
+          <button class="nav-item open" data-toggle="tenant">
+            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V9l8-5 8 5v11"/><path d="M9 20v-6h6v6"/></svg></span>
+            租户管理 <span class="chev">▾</span>
+          </button>
+          <div class="nav-subs"><button class="nav-sub">租户中心</button></div>
+        </div>
+        <div class="nav-group open">
+          <button class="nav-item open" data-toggle="system">
+            <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H8a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V8c.3.6.9 1 1.5 1.1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></span>
+            系统设置 <span class="chev">▾</span>
+          </button>
+          <div class="nav-subs"><button class="nav-sub">用户管理</button></div>
+        </div>
+      </nav>
+    </aside>
+
+    <section class="main">
+      <header class="topbar">
+        <label class="top-search">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>
+          <input placeholder="搜索" />
+        </label>
+        <div class="top-right">
+          <button class="icon-btn" title="帮助">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.2 2.4c-.8.3-1.2.8-1.2 1.6V14"/><circle cx="12" cy="17" r=".8" fill="currentColor"/></svg>
+          </button>
+          <button class="icon-btn" title="通知">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 9a6 6 0 1 1 12 0c0 7 3 7 3 9H3c0-2 3-2 3-9"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>
+          </button>
+          <button class="user">
+            <span class="avatar">A</span>
+            <span class="user-name">Alex</span>
+            <span style="color:#c0c4cc;font-size:12px">▾</span>
+          </button>
+          <span class="help-dot">?</span>
+        </div>
+      </header>
+
+      <div class="workspace">
+        <div class="page-card">
+          <div class="page-hd">
+            <h1 class="page-title">业务线管理</h1>
+            <button class="btn-add" id="btnAdd">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+              新增业务线
+            </button>
+          </div>
+          <div class="filters" id="filters"></div>
+          <div class="toolbar">
+            <label class="search-box">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>
+              <input id="tableSearch" placeholder="搜索" />
+            </label>
+          </div>
+          <div class="table-wrap" id="tableWrap"></div>
+          <div class="pager" id="pager"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="overlay" id="overlay"></div>
+  <div class="modal" id="modal">
+    <div class="modal-hd">
+      <span id="modalTitle">新增业务线</span>
+      <button class="modal-close" id="modalClose">×</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-ft" id="modalFt"></div>
+  </div>
+
+  <div class="dialog" id="fieldDialog">
+    <h4 id="fieldDialogTitle">新增字段</h4>
+    <div class="field">
+      <label><span class="req">*</span>字段名称：</label>
+      <input id="fdName" placeholder="请输入字段名称" />
+    </div>
+    <div class="field">
+      <label><span class="req">*</span>字段类型：</label>
+      <select id="fdType"></select>
+    </div>
+    <div class="field" id="fdDefaultRow">
+      <label>默认值：</label>
+      <input id="fdDefault" placeholder="请输入默认值" />
+    </div>
+    <div class="field top" id="fdOptionsRow" style="display:none">
+      <label><span class="req">*</span>选项：</label>
+      <div class="opt-box">
+        <div class="opt-list" id="fdOptList"></div>
+        <button type="button" class="opt-add" id="fdAddOpt">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+          添加选项
+        </button>
+      </div>
+    </div>
+    <div class="field">
+      <label>是否必填：</label>
+      <label class="check"><input type="checkbox" id="fdRequired" />必填</label>
+    </div>
+    <div class="dialog-ft">
+      <button class="btn btn-ghost" id="fdCancel">取消</button>
+      <button class="btn btn-pub" id="fdSave">确定</button>
+    </div>
+  </div>
+
+  <div class="confirm" id="confirm">
+    <p id="confirmText">确认删除？</p>
+    <div class="confirm-ft">
+      <button class="btn btn-ghost" id="confirmNo">取消</button>
+      <button class="btn btn-pub" id="confirmYes">确定</button>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
+
+  <script src="./industry-options.js"></script>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const PAGE_SIZE = 8;
+    let condSeq = 1;
+
+    const INDUSTRY = window.INDUSTRY_OPTIONS || {
+      category: [], major: [], sub: [],
+      majorsByCategory: {}, subsByMajor: {}, categoryOfMajor: {}, majorOfSub: {}
+    };
+    const FIELDS = {
+      company: [
+        { key: "companyName", label: "公司名称", type: "text" },
+        { key: "englishName", label: "英文名", type: "text" },
+        { key: "companyScale", label: "企业规模", type: "text" },
+        { key: "regStatus", label: "登记状态", type: "text" },
+        { key: "legalPerson", label: "法定代表人", type: "text" },
+        { key: "registeredCapital", label: "注册资本", type: "number" },
+        { key: "establishDate", label: "成立日期", type: "date" },
+        { key: "businessTerm", label: "营业期限", type: "text" },
+        { key: "registeredAddress", label: "注册地址", type: "text" },
+        { key: "businessScope", label: "经营范围", type: "text" },
+        { key: "industryCategory", label: "国标行业门类", type: "select", values: INDUSTRY.category },
+        { key: "industryMajor", label: "国标行业大类", type: "select", values: INDUSTRY.major },
+        { key: "industrySub", label: "国标行业中类", type: "select", values: INDUSTRY.sub },
+        { key: "keywords", label: "关键词", type: "text" },
+        { key: "creditCode", label: "统一社会信用代码", type: "text" },
+        { key: "insuredCount", label: "参保人数", type: "number" },
+        { key: "welfare", label: "福利", type: "text" }
+      ],
+      job: [
+        { key: "job_name", label: "岗位名称", type: "text" },
+        { key: "salary", label: "薪资", type: "text" },
+        { key: "job_summary", label: "岗位概要", type: "text" },
+        { key: "job_desc", label: "职位介绍", type: "text" },
+        { key: "job_area", label: "岗位区域", type: "text" },
+        { key: "job_education", label: "岗位学历", type: "select", values: ["不限", "初中及以下", "高中/中专", "大专", "本科", "硕士", "博士"] }
+      ]
+    };
+
+    const SOURCE_LABEL = { company: "公司信息", job: "招聘岗位" };
+    const OPS = {
+      text: [
+        { key: "eq", label: "是" }, { key: "neq", label: "不是" },
+        { key: "contains", label: "包含" }, { key: "notContains", label: "不包含" },
+        { key: "empty", label: "为空" }, { key: "notEmpty", label: "不为空" }
+      ],
+      select: [
+        { key: "eq", label: "是" }, { key: "neq", label: "不是" },
+        { key: "in", label: "属于" }, { key: "notIn", label: "不属于" },
+        { key: "empty", label: "为空" }, { key: "notEmpty", label: "不为空" }
+      ],
+      number: [
+        { key: "eq", label: "等于" }, { key: "neq", label: "不等于" },
+        { key: "gt", label: "大于" }, { key: "lt", label: "小于" },
+        { key: "gte", label: "大于等于" }, { key: "lte", label: "小于等于" },
+        { key: "empty", label: "为空" }, { key: "notEmpty", label: "不为空" }
+      ],
+      date: [
+        { key: "eq", label: "等于" }, { key: "before", label: "早于" }, { key: "after", label: "晚于" },
+        { key: "empty", label: "为空" }, { key: "notEmpty", label: "不为空" }
+      ]
+    };
+    const COMPARE_OPS = [
+      { key: "eq", label: "等于" }, { key: "neq", label: "不等于" },
+      { key: "gt", label: "大于" }, { key: "lt", label: "小于" },
+      { key: "gte", label: "大于等于" }, { key: "lte", label: "小于等于" }
+    ];
+    const AGG = {
+      text: [{ key: "count", label: "数量" }],
+      select: [{ key: "count", label: "数量" }, { key: "distinct", label: "去重计数" }],
+      number: [
+        { key: "count", label: "数量" }, { key: "sum", label: "求和" },
+        { key: "avg", label: "平均值" }, { key: "max", label: "最大值" }, { key: "min", label: "最小值" }
+      ],
+      date: [
+        { key: "count", label: "数量" }, { key: "earliest", label: "最早" },
+        { key: "latest", label: "最晚" }, { key: "span", label: "时间跨度" }
+      ]
+    };
+
+    const FIELD_TYPES = [
+      { value: "date", label: "日期" },
+      { value: "number", label: "数字" },
+      { value: "range", label: "数值区间" },
+      { value: "text", label: "单行文本" },
+      { value: "textarea", label: "多行文本" },
+      { value: "select", label: "单选下拉" },
+      { value: "multiSelect", label: "多选下拉" },
+      { value: "radio", label: "单选框" },
+      { value: "checkbox", label: "多选框" }
+    ];
+    const TYPE_LABEL = Object.fromEntries(FIELD_TYPES.map((t) => [t.value, t.label]));
+    const OPTION_TYPES = new Set(["select", "multiSelect", "radio", "checkbox"]);
+    const isOptionType = (t) => OPTION_TYPES.has(t);
+
+    const ROLE_OPTIONS = ["决策人", "影响人", "执行人"];
+    const SCOPE_OPTIONS = ["集团", "区域", "部门"];
+    /* 业务负责人：单选，选项来自组织用户（原型示例） */
+    const OWNER_OPTIONS = ["Alex", "Taylor", "Jordan"];
+
+    function bizLineSelectOptions() {
+      return (Array.isArray(lines) ? lines : []).map((l) => l.name).filter(Boolean);
+    }
+
+    function defaultSystemFields() {
+      return [
+        {
+          id: "sf1", name: "业务线", type: "select", defaultValue: "系统定义",
+          options: [], optionSource: "bizLines",
+          system: true, required: false, locked: true
+        },
+        { id: "sf3", name: "业务描述", type: "text", defaultValue: "", options: [], system: true, required: false, locked: true },
+        {
+          id: "sf4", name: "业务负责人", type: "select", defaultValue: "系统定义",
+          options: OWNER_OPTIONS.slice(),
+          system: true, required: false, locked: true
+        },
+        {
+          id: "sf5", name: "业务角色", type: "select", defaultValue: "",
+          options: ROLE_OPTIONS.slice(),
+          system: true, required: false, locked: true
+        },
+        {
+          id: "sf6", name: "负责范围", type: "select", defaultValue: "",
+          options: SCOPE_OPTIONS.slice(),
+          system: true, required: false, locked: true
+        },
+        { id: "sf7", name: "业务覆盖人数", type: "number", defaultValue: "", options: [], system: true, required: false, locked: true },
+        { id: "sf8", name: "预算范围", type: "range", defaultValue: "", options: [], system: true, required: false, locked: true },
+        { id: "sf9", name: "预计采购时间", type: "date", defaultValue: "", options: [], system: true, required: false, locked: true }
+      ].map((f) => ({ ...f, options: (f.options || []).slice() }));
+    }
+
+    function ensureSystemFields(fields) {
+      const defaults = defaultSystemFields();
+      const byName = new Map((fields || []).map((f) => [f.name, f]));
+      const merged = defaults.map((d) => {
+        const cur = byName.get(d.name);
+        const options = d.optionSource === "bizLines"
+          ? bizLineSelectOptions()
+          : (d.options || []).slice();
+        if (!cur) return { ...d, options };
+        return {
+          ...cur,
+          type: d.type,
+          system: true,
+          locked: true,
+          optionSource: d.optionSource,
+          defaultValue: d.defaultValue,
+          options
+        };
+      });
+      const sysNames = new Set(defaults.map((d) => d.name));
+      (fields || []).forEach((f) => {
+        if (!f.system && !sysNames.has(f.name)) merged.push(f);
+      });
+      return merged;
+    }
+
+    function emptyCond() {
+      return {
+        id: "c" + (condSeq++),
+        kind: "field",
+        source: "",
+        field: "",
+        op: "",
+        value: "",
+        filterOp: "",
+        filterValue: "",
+        agg: "count"
+      };
+    }
+
+    function normalizeCond(c) {
+      return {
+        id: c.id || ("c" + (condSeq++)),
+        kind: c.kind || "field",
+        source: c.source || "",
+        field: c.field || "",
+        op: c.op || "",
+        value: Array.isArray(c.value) ? c.value.slice() : (c.value || ""),
+        filterOp: c.filterOp || "",
+        filterValue: Array.isArray(c.filterValue) ? c.filterValue.slice() : (c.filterValue || ""),
+        agg: c.agg || "count"
+      };
+    }
+
+    function fieldMeta(source, field) {
+      const list = FIELDS[source] || [];
+      return list.find((f) => f.key === field) || null;
+    }
+
+    function fieldOptions(c) {
+      return Object.keys(FIELDS).map((src) => {
+        const opts = FIELDS[src].map((f) =>
+          `<option value="${src}.${f.key}" ${c.source === src && c.field === f.key ? "selected" : ""}>${f.label}</option>`
+        ).join("");
+        return `<optgroup label="${SOURCE_LABEL[src]}">${opts}</optgroup>`;
+      }).join("");
+    }
+
+    function opLabel(list, key) {
+      const hit = (list || []).find((o) => o.key === key);
+      return hit ? hit.label : "";
+    }
+
+    function isMultiOp(op) {
+      return op === "in" || op === "notIn";
+    }
+
+    function normalizeValueList(v) {
+      if (Array.isArray(v)) return v.map(String).map((s) => s.trim()).filter(Boolean);
+      if (v == null || v === "") return [];
+      return String(v).split("|").map((s) => s.trim()).filter(Boolean);
+    }
+
+    function formatValueList(v) {
+      const list = normalizeValueList(v);
+      if (!list.length) return "";
+      return list.map((x) => `「${x}」`).join("");
+    }
+
+    function multiSummary(selected, ph) {
+      return selected.length ? selected.join("、") : (ph || "请选择值");
+    }
+
+    function valueControl(c, key, meta, noVal, ph) {
+      if (noVal) return "";
+      const values = meta && meta.values;
+      const opKey = key === "filterValue" ? c.filterOp : c.op;
+      const multi = isMultiOp(opKey);
+      const selected = normalizeValueList(c[key]);
+      if (meta && meta.type === "select" && values) {
+        if (multi) {
+          const summary = selected.length ? selected.join("、") : "";
+          return `<div class="multi-wrap" data-multi="${c.id}" data-k="${key}">
+            <button type="button" class="multi-btn" data-open-multi="${c.id}" data-k="${key}">
+              <span class="${summary ? "" : "ph"}">${escapeAttr(multiSummary(selected, ph))}</span>
+              <span class="filter-caret">▾</span>
+            </button>
+            <div class="multi-panel">
+              ${values.map((v) => `
+                <label class="multi-opt">
+                  <input type="checkbox" data-cond="${c.id}" data-k="${key}" data-multi-val="${escapeAttr(v)}" ${selected.includes(v) ? "checked" : ""} />
+                  <span>${escapeAttr(v)}</span>
+                </label>`).join("")}
+            </div>
+          </div>`;
+        }
+        const single = selected[0] || "";
+        return `<select class="val" data-cond="${c.id}" data-k="${key}">
+          <option value="" ${single ? "" : "selected"}>${ph}</option>
+          ${values.map((v) => `<option value="${escapeAttr(v)}" ${single === v ? "selected" : ""}>${escapeAttr(v)}</option>`).join("")}
+        </select>`;
+      }
+      if (multi) {
+        return `<input class="val" data-cond="${c.id}" data-k="${key}" type="text" placeholder="多个值用 | 分隔" value="${escapeAttr(selected.join(" | "))}" ${c.field ? "" : "disabled"} />`;
+      }
+      const type = meta && meta.type === "date" ? "date" : (meta && meta.type === "number" ? "number" : "text");
+      return `<input class="val" data-cond="${c.id}" data-k="${key}" type="${type}" placeholder="${ph}" value="${escapeAttr(selected[0] || c[key] || "")}" ${c.field ? "" : "disabled"} />`;
+    }
+
+    function formatStatPreview(c) {
+      const meta = fieldMeta(c.source, c.field);
+      if (!meta) return "请先选择统计字段";
+      const filterOps = OPS[meta.type] || OPS.text;
+      const filterNoVal = c.filterOp === "empty" || c.filterOp === "notEmpty";
+      let filterText = "";
+      if (c.filterOp) {
+        if (filterNoVal) filterText = opLabel(filterOps, c.filterOp);
+        else filterText = `${opLabel(filterOps, c.filterOp)}${formatValueList(c.filterValue)}`;
+      }
+      const aggs = AGG[meta.type] || AGG.text;
+      const agg = opLabel(aggs, c.agg || "count") || "数量";
+      const cmp = opLabel(COMPARE_OPS, c.op);
+      const head = filterText ? `${meta.label}${filterText}的${agg}` : `${meta.label}的${agg}`;
+      if (!c.op) return head;
+      const valText = formatValueList(c.value) || (c.value !== "" && c.value != null && !Array.isArray(c.value) ? ` ${c.value}` : "");
+      return `${head} ${cmp}${valText}`;
+    }
+
+    function filterSummary(c) {
+      const meta = fieldMeta(c.source, c.field);
+      if (!meta || !c.filterOp) return "";
+      const ops = OPS[meta.type] || OPS.text;
+      const noVal = c.filterOp === "empty" || c.filterOp === "notEmpty";
+      const op = opLabel(ops, c.filterOp);
+      const val = noVal ? "" : formatValueList(c.filterValue);
+      return `${op}${val}`;
+    }
+
+    let filterOpen = "";
+    let multiOpen = "";
+
+    function closeFilter() {
+      filterOpen = "";
+      document.querySelectorAll(".filter-panel.show").forEach((p) => p.classList.remove("show"));
+      document.querySelectorAll(".filter-btn.open").forEach((b) => b.classList.remove("open"));
+      document.querySelectorAll(".filter-wrap.is-open").forEach((w) => w.classList.remove("is-open"));
+    }
+
+    function closeMulti() {
+      multiOpen = "";
+      document.querySelectorAll(".multi-panel.show").forEach((p) => p.classList.remove("show"));
+      document.querySelectorAll(".multi-btn.open").forEach((b) => b.classList.remove("open"));
+      document.querySelectorAll(".multi-wrap.is-open").forEach((w) => w.classList.remove("is-open"));
+    }
+
+    function openFilter(condId) {
+      const wrap = document.querySelector(`[data-filter="${condId}"]`);
+      const btn = wrap && wrap.querySelector(".filter-btn");
+      const panel = wrap && wrap.querySelector(".filter-panel");
+      if (!btn || !panel || btn.disabled) return;
+      closeMulti();
+      closeFilter();
+      filterOpen = condId;
+      wrap.classList.add("is-open");
+      btn.classList.add("open");
+      panel.classList.add("show");
+    }
+
+    function openMulti(condId, key) {
+      const wrap = document.querySelector(`.multi-wrap[data-multi="${condId}"][data-k="${key}"]`);
+      const btn = wrap && wrap.querySelector(".multi-btn");
+      const panel = wrap && wrap.querySelector(".multi-panel");
+      if (!btn || !panel) return;
+      closeFilter();
+      closeMulti();
+      multiOpen = `${condId}:${key}`;
+      wrap.classList.add("is-open");
+      btn.classList.add("open");
+      panel.classList.add("show");
+    }
+
+    let lines = [
+      {
+        id: "WF20260123001",
+        name: "海外招聘",
+        desc: "面向海外人才引进与跨境招聘交付",
+        status: "on",
+        published: true,
+        updatedAt: "2026-09-30",
+        babyLeadCount: 120,
+        orderCount: 12,
+        usedBy: ["订单", "商机"],
+        logic: "and",
+        ruleMode: "condition",
+        prompt: "",
+        ruleVersion: 1,
+        conditions: [
+          { id: "c1", kind: "field", source: "company", field: "industryMajor", op: "eq", value: "金属制品业" },
+          { id: "c2", kind: "stat", source: "job", field: "job_name", filterOp: "contains", filterValue: "销售", agg: "count", op: "gt", value: "0" }
+        ],
+        fields: defaultSystemFields()
+      },
+      {
+        id: "WF20260123002",
+        name: "企业培训",
+        desc: "企业内训、管理培训与人才发展",
+        status: "off",
+        published: false,
+        updatedAt: "2026-09-20",
+        babyLeadCount: 50,
+        orderCount: 0,
+        usedBy: [],
+        logic: "and",
+        ruleMode: "condition",
+        prompt: "",
+        ruleVersion: 1,
+        conditions: [
+          { id: "c3", kind: "field", source: "company", field: "registeredCapital", op: "gte", value: "1000" }
+        ],
+        fields: defaultSystemFields()
+      },
+      {
+        id: "WF20260123003",
+        name: "福利",
+        desc: "员工福利采购与团购交付",
+        status: "on",
+        published: false,
+        updatedAt: "2026-09-18",
+        babyLeadCount: 86,
+        orderCount: 0,
+        usedBy: [],
+        logic: "and",
+        ruleMode: "prompt",
+        prompt: "识别有员工福利采购意向的企业",
+        ruleVersion: 1,
+        conditions: [emptyCond()],
+        fields: defaultSystemFields()
+      }
+    ];
+    lines.forEach((l) => { l.fields = ensureSystemFields(l.fields); });
+    condSeq = 10;
+
+    const state = {
+      query: "",
+      filters: { name: "", updatedAt: "" },
+      page: 1,
+      selectedId: "",
+      form: null,
+      modalKind: null,
+      fieldEdit: null,
+      confirmCb: null,
+      dragFrom: null
+    };
+
+    function toast(msg) {
+      const el = $("toast");
+      el.textContent = msg;
+      el.style.display = "block";
+      clearTimeout(toast._t);
+      toast._t = setTimeout(() => { el.style.display = "none"; }, 1800);
+    }
+
+    function askConfirm(text, cb, yesText) {
+      $("confirmText").textContent = text;
+      $("confirmYes").textContent = yesText || "确定";
+      $("confirmYes").style.background = yesText === "删除" ? "#f56c6c" : "var(--green)";
+      state.confirmCb = cb;
+      $("confirm").classList.add("show");
+      $("overlay").classList.add("show");
+    }
+
+    function closeConfirm() {
+      $("confirm").classList.remove("show");
+      $("confirmYes").textContent = "确定";
+      $("confirmYes").style.background = "var(--green)";
+      state.confirmCb = null;
+      if (!$("modal").classList.contains("show") && !$("fieldDialog").classList.contains("show")) {
+        $("overlay").classList.remove("show");
+      }
+    }
+
+    function escapeAttr(s) {
+      return String(s || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+    }
+
+    function nowStr() {
+      const d = new Date();
+      const p = (n) => String(n).padStart(2, "0");
+      return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+    }
+
+    function nextId() {
+      const nums = lines.map((l) => Number(String(l.id).slice(-3))).filter((n) => !Number.isNaN(n));
+      const n = String((nums.length ? Math.max(...nums) : 0) + 1).padStart(3, "0");
+      return `WF20260123${n}`;
+    }
+
+    function lineUsage(line) {
+      return (line && line.usedBy) || [];
+    }
+
+    function orderCountOf(line) {
+      if (typeof line.orderCount === "number") return line.orderCount;
+      return (line.usedBy || []).includes("订单") ? 1 : 0;
+    }
+
+    function ruleCountOf(line) {
+      if (line.ruleMode === "prompt") return line.prompt ? 1 : 0;
+      return (line.conditions || []).filter((c) => c.source && c.field).length;
+    }
+
+    function fieldCountOf(line) {
+      return (line.fields || []).length;
+    }
+
+    function currentList() {
+      const q = state.query.trim().toLowerCase();
+      const f = state.filters;
+      return lines.filter((l) => {
+        if (f.name && !l.name.includes(f.name)) return false;
+        if (f.updatedAt && !(l.updatedAt || "").includes(f.updatedAt)) return false;
+        if (!q) return true;
+        return [l.id, l.name, l.desc, l.updatedAt].join(" ").toLowerCase().includes(q);
+      });
+    }
+
+    function babyLeadOf(line) {
+      return typeof line.babyLeadCount === "number" ? line.babyLeadCount : 0;
+    }
+
+    function definitionOf(line) {
+      return String(line.definition || line.desc || "").trim();
+    }
+
+    function renderFilters() {
+      $("filters").innerHTML = `
+        <label class="filter-item">业务线名称：<input id="fltName" placeholder="请输入业务线名称" value="${escapeAttr(state.filters.name)}" /></label>
+        <label class="filter-item">更新时间：<input id="fltTime" placeholder="请输入更新时间" value="${escapeAttr(state.filters.updatedAt || "")}" /></label>`;
+    }
+
+    function renderTable() {
+      const all = currentList();
+      const pages = Math.max(1, Math.ceil(all.length / PAGE_SIZE));
+      if (state.page > pages) state.page = pages;
+      const start = (state.page - 1) * PAGE_SIZE;
+      const rows = all.slice(start, start + PAGE_SIZE);
+      if (!state.selectedId && rows[0]) state.selectedId = rows[0].id;
+
+      $("tableWrap").innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>业务线</th><th>Baby Leads数量</th><th>业务线定义</th><th>规则版本</th><th>更新时间</th><th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.map((r) => `
+              <tr class="${state.selectedId === r.id ? "selected" : ""}" data-row="${r.id}">
+                <td>${escapeAttr(r.name)}</td>
+                <td>${babyLeadOf(r)}</td>
+                <td class="cell-desc">${escapeAttr(definitionOf(r)) || "—"}</td>
+                <td><span class="ver-pill">V${Number(r.ruleVersion) || 1}</span></td>
+                <td>${r.updatedAt || "—"}</td>
+                <td>
+                  <div class="ops">
+                    <button class="edit" data-edit="${r.id}">编辑</button>
+                    <button class="edit" data-fields="${r.id}">配置字段</button>
+                    ${r.published ? "" : `<button class="publish" data-pub="${r.id}">发布</button>`}
+                    <button class="del" data-del-line="${r.id}">删除</button>
+                  </div>
+                </td>
+              </tr>`).join("") || `<tr><td colspan="6"><div class="empty">暂无业务线</div></td></tr>`}
+          </tbody>
+        </table>`;
+
+      const btns = [];
+      const show = new Set([1, pages, state.page, state.page - 1, state.page + 1]);
+      let last = 0;
+      for (let i = 1; i <= pages; i++) {
+        if (!show.has(i) && !(i <= 2 || i >= pages - 1)) {
+          if (last !== -1) { btns.push("<span>…</span>"); last = -1; }
+          continue;
+        }
+        last = i;
+        btns.push(`<button data-page="${i}" class="${i === state.page ? "active" : ""}">${i}</button>`);
+      }
+      $("pager").innerHTML = `
+        <button data-page="${state.page - 1}" ${state.page <= 1 ? "disabled" : ""}>‹ 上一页</button>
+        ${btns.join("")}
+        <button data-page="${state.page + 1}" ${state.page >= pages ? "disabled" : ""}>下一页 ›</button>`;
+    }
+
+    function render() {
+      renderFilters();
+      renderTable();
+    }
+
+    function openModal(item) {
+      state.modalKind = "detail";
+      state.form = item
+        ? {
+            mode: "edit",
+            id: item.id,
+            name: item.name,
+            desc: item.desc || "",
+            status: item.status,
+            published: !!item.published,
+            babyLeadCount: babyLeadOf(item),
+            orderCount: orderCountOf(item),
+            usedBy: lineUsage(item).slice(),
+            logic: item.logic || "and",
+            ruleMode: item.ruleMode === "prompt" ? "prompt" : "condition",
+            prompt: item.prompt || "",
+            ruleVersion: Number(item.ruleVersion) || 1,
+            conditions: (item.conditions && item.conditions.length ? item.conditions : [emptyCond()]).map(normalizeCond),
+            fields: ensureSystemFields(item.fields && item.fields.length ? item.fields : defaultSystemFields())
+          }
+        : {
+            mode: "create",
+            id: nextId(),
+            name: "",
+            desc: "",
+            status: "on",
+            published: false,
+            babyLeadCount: 0,
+            orderCount: 0,
+            usedBy: [],
+            logic: "and",
+            ruleMode: "condition",
+            prompt: "",
+            ruleVersion: 1,
+            conditions: [emptyCond()],
+            fields: ensureSystemFields(defaultSystemFields())
+          };
+      renderDetailModal();
+      showModal();
+    }
+
+    function openFieldsModal(item) {
+      if (!item) return;
+      state.modalKind = "fields";
+      state.form = {
+        mode: "fields",
+        id: item.id,
+        name: item.name,
+        desc: item.desc || "",
+        status: item.status,
+        babyLeadCount: babyLeadOf(item),
+        orderCount: orderCountOf(item),
+        usedBy: lineUsage(item).slice(),
+        logic: item.logic || "and",
+        ruleMode: item.ruleMode === "prompt" ? "prompt" : "condition",
+        prompt: item.prompt || "",
+        ruleVersion: Number(item.ruleVersion) || 1,
+        conditions: JSON.parse(JSON.stringify(item.conditions || [])),
+        fields: ensureSystemFields(item.fields && item.fields.length ? item.fields : defaultSystemFields())
+      };
+      renderFieldsModal();
+      showModal();
+    }
+
+    function applyRuleMode() {
+      // 暂隐藏提示词规则：始终展示条件规则面板
+      // const mode = state.form && state.form.ruleMode === "prompt" ? "prompt" : "condition";
+      // const prompt = mode === "prompt";
+      // const conditionPane = $("conditionPane");
+      // const promptPane = $("promptPane");
+      // if (conditionPane) conditionPane.hidden = prompt;
+      // if (promptPane) promptPane.hidden = !prompt;
+      // document.querySelectorAll("#ruleModeSwitch [data-rule-mode]").forEach((el) => {
+      //   el.classList.toggle("active", el.dataset.ruleMode === mode);
+      // });
+      const conditionPane = $("conditionPane");
+      if (conditionPane) conditionPane.hidden = false;
+      const promptPane = $("promptPane");
+      if (promptPane) promptPane.hidden = true;
+    }
+
+    function renderRules() {
+      const form = state.form;
+      if (!form || !$("ruleList")) return;
+      const keepFilter = filterOpen;
+      const keepMulti = multiOpen;
+      closeFilter();
+      closeMulti();
+      const many = form.conditions.length > 1;
+      const rows = form.conditions.map((c) => {
+        const kind = c.kind || "field";
+        const meta = fieldMeta(c.source, c.field);
+        const fieldOps = meta ? (OPS[meta.type] || OPS.text) : [];
+        const aggs = meta ? (AGG[meta.type] || AGG.text) : AGG.text;
+        if (meta && !aggs.some((a) => a.key === c.agg)) c.agg = aggs[0].key;
+        const noVal = c.op === "empty" || c.op === "notEmpty";
+        const filterNoVal = c.filterOp === "empty" || c.filterOp === "notEmpty";
+        const summary = filterSummary(c);
+        const tail = kind === "stat"
+          ? `
+            <div class="filter-wrap" data-filter="${c.id}">
+              <button type="button" class="filter-btn" data-open-filter="${c.id}" ${c.field ? "" : "disabled"} title="${summary || "设置筛选条件"}">
+                <span class="${summary ? "" : "ph"}">${summary || "筛选条件"}</span>
+                <span class="filter-caret">▾</span>
+              </button>
+              <div class="filter-panel">
+                <label>筛选条件</label>
+                <div class="pair">
+                  <select data-cond="${c.id}" data-k="filterOp" ${c.field ? "" : "disabled"}>
+                    <option value="">不筛选</option>
+                    ${fieldOps.map((o) => `<option value="${o.key}" ${c.filterOp === o.key ? "selected" : ""}>${o.label}</option>`).join("")}
+                  </select>
+                  ${c.filterOp ? valueControl(c, "filterValue", meta, filterNoVal, "筛选值") : ""}
+                </div>
+                <div class="note">${summary ? formatStatPreview(c) : "不筛选时，对该字段全部记录做聚合"}</div>
+              </div>
+            </div>
+            <select data-cond="${c.id}" data-k="agg" ${c.field ? "" : "disabled"}>
+              ${c.field
+                ? aggs.map((a) => `<option value="${a.key}" ${(c.agg || "count") === a.key ? "selected" : ""}>${a.label}</option>`).join("")
+                : `<option value="">聚合方式</option>`}
+            </select>
+            <select data-cond="${c.id}" data-k="op" ${c.field ? "" : "disabled"}>
+              <option value="">请选择规则</option>
+              ${COMPARE_OPS.map((o) => `<option value="${o.key}" ${c.op === o.key ? "selected" : ""}>${o.label}</option>`).join("")}
+            </select>
+            <input class="val" data-cond="${c.id}" data-k="value" type="number" placeholder="请选择值" value="${escapeAttr(c.value || "")}" ${c.field ? "" : "disabled"} />`
+          : `
+            <select data-cond="${c.id}" data-k="op" ${c.field ? "" : "disabled"}>
+              <option value="">请选择规则</option>
+              ${fieldOps.map((o) => `<option value="${o.key}" ${c.op === o.key ? "selected" : ""}>${o.label}</option>`).join("")}
+            </select>
+            ${valueControl(c, "value", meta, noVal, "请选择值")}`;
+        return `<div class="rule-row">
+          <div class="kind-switch">
+            <button type="button" data-set-kind="field" data-cond="${c.id}" class="${kind === "field" ? "active" : ""}">字段</button>
+            <button type="button" data-set-kind="stat" data-cond="${c.id}" class="${kind === "stat" ? "active" : ""}">统计</button>
+          </div>
+          <select data-cond="${c.id}" data-k="fieldKey">
+            <option value="">请选择字段</option>
+            ${fieldOptions(c)}
+          </select>
+          ${tail}
+          <button class="rule-minus" data-remove="${c.id}" title="删除条件">−</button>
+        </div>`;
+      }).join("");
+      const pill = many
+        ? `<select class="logic-pill" data-k="logic" title="条件关系">
+            <option value="and" ${(form.logic || "and") === "and" ? "selected" : ""}>且</option>
+            <option value="or" ${form.logic === "or" ? "selected" : ""}>或</option>
+          </select>`
+        : "";
+      $("ruleList").classList.toggle("has-logic", many);
+      $("ruleList").innerHTML = (rows || `<div class="empty" style="padding:20px 0">暂无条件，请点击「新增条件」</div>`) + pill;
+      if (keepFilter) openFilter(keepFilter);
+      else if (keepMulti) {
+        const [id, key] = keepMulti.split(":");
+        if (id && key) openMulti(id, key);
+      }
+    }
+
+    function renderDetailModal() {
+      const f = state.form;
+      $("modalTitle").textContent = f.mode === "edit" ? "编辑业务线" : "新增业务线";
+      $("modalBody").innerHTML = `
+        <div class="section" id="secConfig">
+          <h3>业务线配置</h3>
+          <div class="form-grid">
+            <div class="field">
+              <label><span class="req">*</span>业务线名称：</label>
+              <input id="fName" placeholder="请输入业务线名称" value="${escapeAttr(f.name)}" />
+            </div>
+            <div class="field">
+              <label>业务线定义：</label>
+              <input id="fDesc" placeholder="请输入业务线定义" value="${escapeAttr(f.desc)}" />
+            </div>
+          </div>
+        </div>
+        <div class="section" id="secRules">
+          <div class="section-hd">
+            <div class="section-title">
+              <h3>预判规则</h3>
+              <span class="ver-pill" id="ruleVersion">V${Number(f.ruleVersion) || 1}</span>
+            </div>
+            <!-- 暂隐藏：规则模式切换（含「提示词规则」）
+            <div class="mode-switch" id="ruleModeSwitch">
+              <button type="button" data-rule-mode="condition" class="${f.ruleMode !== "prompt" ? "active" : ""}">条件规则</button>
+              <button type="button" data-rule-mode="prompt" class="${f.ruleMode === "prompt" ? "active" : ""}">提示词规则</button>
+            </div>
+            -->
+          </div>
+          <div id="conditionPane">
+            <div class="rule-toolbar">
+              <button class="btn-cond" id="btnAddCond" type="button">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+                新增条件
+              </button>
+              <span class="hint">字段：选字段后配规则和值。统计：同一字段分别设置「筛选条件」和「聚合方式」，再用规则和值判断结果。字段取自 middata（公司 / 招聘岗位），不含联系人。</span>
+            </div>
+            <div class="rule-list" id="ruleList"></div>
+          </div>
+          <!-- 暂隐藏：提示词规则面板
+          <div id="promptPane" hidden>
+            <textarea class="prompt-box" id="fPrompt" placeholder="请输入提示词，描述如何预判公司是否归属该业务线">${escapeAttr(f.prompt)}</textarea>
+            <span class="hint prompt-hint">用自然语言描述预判规则，发布后由模型按提示词判断是否命中</span>
+          </div>
+          -->
+        </div>`;
+      $("modalFt").innerHTML = `
+        <button class="btn btn-ghost" id="btnCancel">取消</button>
+        <button class="btn btn-save" id="btnSave">保存</button>
+        <button class="btn btn-pub" id="btnPublish">发布</button>`;
+      applyRuleMode();
+      renderRules();
+    }
+
+    function renderFieldsModal() {
+      const f = state.form;
+      $("modalTitle").textContent = `配置字段 · ${f.name}`;
+      $("modalBody").innerHTML = `
+        <div class="section" id="secFields">
+          <div class="section-hd">
+            <h3>业务字段配置</h3>
+            <button class="btn-sm-add" id="btnAddField" type="button">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+              新增字段
+            </button>
+          </div>
+          <p class="tip">系统字段不可编辑、不可删除，默认不必填；「业务线」选项同步自已配置的业务线；自定义字段可编辑、删除</p>
+          <div class="fields-table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:36px"></th>
+                  <th>字段名称</th>
+                  <th>默认值</th>
+                  <th>字段类型</th>
+                  <th>是否系统字段</th>
+                  <th>是否必填</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="fieldTbody">${fieldRowsHtml(f.fields)}</tbody>
+            </table>
+          </div>
+        </div>`;
+      $("modalFt").innerHTML = `
+        <button class="btn btn-ghost" id="btnCancel">取消</button>
+        <button class="btn btn-save" id="btnSaveFields">保存</button>`;
+      bindFieldDrag();
+    }
+
+    function fieldDefaultCell(f, i) {
+      if (f.defaultValue === "系统定义") {
+        return `<span class="opt-preview">系统定义</span>`;
+      }
+      if (f.type === "range") {
+        return `<span class="opt-preview" title="最低值 — 最高值">最低值 — 最高值</span>`;
+      }
+      if (isOptionType(f.type)) {
+        const opts = f.options || [];
+        const text = opts.length ? opts.join(" / ") : "—";
+        return `<span class="opt-preview" title="${escapeAttr(text)}">${escapeAttr(text)}</span>`;
+      }
+      return `<input class="fld-input" data-fd-default="${i}" value="${escapeAttr(f.defaultValue)}"
+        placeholder="默认值" ${f.system ? "disabled" : ""} />`;
+    }
+
+    function fieldRowsHtml(fields) {
+      return (fields || []).map((f, i) => `
+        <tr draggable="true" data-field-row="${i}">
+          <td><span class="drag" title="拖拽排序">⠿</span></td>
+          <td>${escapeAttr(f.name)}</td>
+          <td>${fieldDefaultCell(f, i)}</td>
+          <td>
+            ${f.system
+              ? `<span>${TYPE_LABEL[f.type] || f.type}</span>`
+              : `<select class="fld-select" data-fd-type="${i}">
+                  ${FIELD_TYPES.map((t) => `<option value="${t.value}" ${f.type === t.value ? "selected" : ""}>${t.label}</option>`).join("")}
+                </select>`}
+          </td>
+          <td>${f.system ? "是" : "否"}</td>
+          <td>
+            <label class="check">
+              <input type="checkbox" data-fd-req="${i}" ${f.required ? "checked" : ""} ${f.system ? "disabled" : ""} />必填
+            </label>
+          </td>
+          <td>
+            <div class="ops">
+              ${f.system
+                ? `<span style="color:var(--text-4);font-size:12px">—</span>`
+                : `<button class="edit" data-fd-edit="${i}">编辑</button>
+                   <button class="del" data-fd-del="${i}">删除</button>`}
+            </div>
+          </td>
+        </tr>`).join("");
+    }
+
+    function bindFieldDrag() {
+      document.querySelectorAll("#fieldTbody [data-field-row]").forEach((row) => {
+        row.addEventListener("dragstart", () => {
+          state.dragFrom = Number(row.dataset.fieldRow);
+          row.style.opacity = "0.5";
+        });
+        row.addEventListener("dragend", () => { row.style.opacity = ""; state.dragFrom = null; });
+        row.addEventListener("dragover", (e) => e.preventDefault());
+        row.addEventListener("drop", (e) => {
+          e.preventDefault();
+          const to = Number(row.dataset.fieldRow);
+          const from = state.dragFrom;
+          if (from == null || from === to || !state.form) return;
+          const arr = state.form.fields;
+          const [item] = arr.splice(from, 1);
+          arr.splice(to, 0, item);
+          if (state.modalKind === "fields") renderFieldsModal();
+          else renderDetailModal();
+        });
+      });
+    }
+
+    function collectDetail() {
+      const f = state.form;
+      if (!f) return;
+      if ($("fName")) f.name = $("fName").value.trim();
+      if ($("fDesc")) f.desc = $("fDesc").value.trim();
+      if ($("fPrompt")) f.prompt = $("fPrompt").value.trim();
+    }
+
+    function patchLine(id, patch) {
+      const idx = lines.findIndex((l) => l.id === id);
+      if (idx >= 0) lines[idx] = { ...lines[idx], ...patch };
+      else lines.unshift(patch);
+    }
+
+    function saveDetail(publish) {
+      collectDetail();
+      const f = state.form;
+      if (!f.name) { toast("请填写业务线名称"); return; }
+      const prev = lines.find((l) => l.id === f.id);
+      const already = !!(prev && prev.published);
+      const payload = {
+        id: f.id,
+        name: f.name,
+        desc: f.desc,
+        status: f.status || "on",
+        published: already || !!publish,
+        updatedAt: nowStr().slice(0, 10),
+        babyLeadCount: typeof f.babyLeadCount === "number" ? f.babyLeadCount : (prev ? babyLeadOf(prev) : 0),
+        orderCount: f.orderCount || 0,
+        usedBy: lineUsage(f).slice(),
+        logic: f.logic || "and",
+        ruleMode: f.ruleMode === "prompt" ? "prompt" : "condition",
+        prompt: f.prompt || "",
+        ruleVersion: Number(f.ruleVersion) || 1,
+        conditions: JSON.parse(JSON.stringify(f.conditions || [])),
+        fields: JSON.parse(JSON.stringify(ensureSystemFields((prev && prev.fields) || f.fields || defaultSystemFields())))
+      };
+      patchLine(f.id, payload);
+      toast(publish ? "已发布" : "已保存");
+      state.selectedId = f.id;
+      closeModal();
+      render();
+    }
+
+    function publishLine(id) {
+      const item = lines.find((l) => l.id === id);
+      if (!item || item.published) return;
+      item.published = true;
+      item.updatedAt = nowStr().slice(0, 10);
+      toast("已发布");
+      render();
+    }
+
+    function saveFields() {
+      const f = state.form;
+      if (!f) return;
+      const prev = lines.find((l) => l.id === f.id);
+      if (!prev) { toast("业务线不存在"); return; }
+      prev.fields = JSON.parse(JSON.stringify(ensureSystemFields(f.fields || [])));
+      prev.updatedAt = nowStr().slice(0, 10);
+      toast("字段配置已保存");
+      state.selectedId = f.id;
+      closeModal();
+      render();
+    }
+
+    function showModal() {
+      $("overlay").classList.add("show");
+      $("modal").classList.add("show");
+    }
+
+    function closeModal() {
+      closeFilter();
+      $("modal").classList.remove("show");
+      state.form = null;
+      state.modalKind = null;
+      if (!$("fieldDialog").classList.contains("show") && !$("confirm").classList.contains("show")) {
+        $("overlay").classList.remove("show");
+      }
+    }
+
+    function collectDialogOptions() {
+      return [...document.querySelectorAll("#fdOptList input")].map((el) => el.value.trim()).filter(Boolean);
+    }
+
+    function renderDialogOptions(options) {
+      const opts = options && options.length ? options : [];
+      $("fdOptList").innerHTML = opts.map((v, i) => `
+        <div class="opt-row">
+          <input data-opt-idx="${i}" value="${escapeAttr(v)}" placeholder="请输入选项" />
+          <button type="button" class="opt-del" data-opt-del="${i}" title="删除">×</button>
+        </div>`).join("");
+    }
+
+    function syncFieldDialogMode() {
+      const useOpt = isOptionType($("fdType").value);
+      $("fdDefaultRow").style.display = useOpt ? "none" : "flex";
+      $("fdOptionsRow").style.display = useOpt ? "flex" : "none";
+    }
+
+    function openFieldDialog(editIdx) {
+      state.fieldEdit = editIdx == null ? { mode: "create" } : { mode: "edit", idx: editIdx };
+      const isEdit = state.fieldEdit.mode === "edit";
+      const f = isEdit ? state.form.fields[editIdx] : null;
+      $("fieldDialogTitle").textContent = isEdit ? "编辑字段" : "新增字段";
+      $("fdType").innerHTML = FIELD_TYPES.map((t) => `<option value="${t.value}">${t.label}</option>`).join("");
+      $("fdName").value = f ? f.name : "";
+      $("fdType").value = f ? f.type : "text";
+      $("fdDefault").value = f && !isOptionType(f.type) ? (f.defaultValue || "") : "";
+      $("fdRequired").checked = f ? !!f.required : false;
+      renderDialogOptions(f && isOptionType(f.type) ? (f.options || []) : []);
+      syncFieldDialogMode();
+      $("fieldDialog").classList.add("show");
+      $("overlay").classList.add("show");
+    }
+
+    function closeFieldDialog() {
+      $("fieldDialog").classList.remove("show");
+      state.fieldEdit = null;
+      if (!$("modal").classList.contains("show") && !$("confirm").classList.contains("show")) {
+        $("overlay").classList.remove("show");
+      }
+    }
+
+    function saveFieldDialog() {
+      const name = $("fdName").value.trim();
+      const type = $("fdType").value;
+      const required = $("fdRequired").checked;
+      if (!name) { toast("请填写字段名称"); return; }
+      if (!type) { toast("请选择字段类型"); return; }
+      const dup = state.form.fields.some((f, i) =>
+        f.name === name && !(state.fieldEdit.mode === "edit" && i === state.fieldEdit.idx)
+      );
+      if (dup) { toast("字段名称已存在"); return; }
+      let defaultValue = "";
+      let options = [];
+      if (isOptionType(type)) {
+        options = collectDialogOptions();
+        if (!options.length) { toast("请至少添加一个选项"); return; }
+      } else {
+        defaultValue = $("fdDefault").value.trim();
+      }
+      if (state.fieldEdit.mode === "edit") {
+        const f = state.form.fields[state.fieldEdit.idx];
+        if (f.system) { toast("系统字段不可编辑"); return; }
+        f.name = name; f.type = type; f.defaultValue = defaultValue; f.options = options; f.required = required;
+      } else {
+        state.form.fields.push({
+          id: "cf" + Date.now(), name, type, defaultValue, options,
+          system: false, required, locked: false
+        });
+      }
+      closeFieldDialog();
+      if (state.modalKind === "fields") renderFieldsModal();
+      else renderDetailModal();
+    }
+
+    function requestDeleteLine(id) {
+      const item = lines.find((l) => l.id === id);
+      if (!item) return;
+      const orders = orderCountOf(item);
+      if (orders > 0) {
+        askConfirm(`「${item.name}」已有 ${orders} 笔关联订单，不允许删除，只能停用。`, null, "知道了");
+        return;
+      }
+      askConfirm(`确认删除业务线「${item.name}」？该业务线未关联订单。删除后不保留记录，不建议恢复。`, () => {
+        lines = lines.filter((l) => l.id !== id);
+        if (state.selectedId === id) state.selectedId = "";
+        toast("已删除");
+        render();
+      }, "删除");
+    }
+
+    function findCond(id) {
+      return state.form && state.form.conditions.find((c) => c.id === id);
+    }
+
+    document.addEventListener("click", (e) => {
+      const filterBtn = e.target.closest("[data-open-filter]");
+      if (filterBtn && state.form) {
+        const id = filterBtn.dataset.openFilter;
+        if (filterOpen === id) closeFilter();
+        else openFilter(id);
+        return;
+      }
+      const multiBtn = e.target.closest("[data-open-multi]");
+      if (multiBtn && state.form) {
+        const id = multiBtn.dataset.openMulti;
+        const key = multiBtn.dataset.k;
+        if (multiOpen === `${id}:${key}`) closeMulti();
+        else openMulti(id, key);
+        return;
+      }
+      if (filterOpen && !e.target.closest(".filter-wrap")) closeFilter();
+      if (multiOpen && !e.target.closest(".multi-wrap")) closeMulti();
+
+      const toggle = e.target.closest("[data-toggle]");
+      if (toggle) {
+        const group = toggle.closest(".nav-group");
+        if (group) {
+          group.classList.toggle("open");
+          toggle.classList.toggle("open");
+        }
+        return;
+      }
+
+      if (e.target.closest("#btnAdd")) { openModal(null); return; }
+
+      if (e.target.id === "overlay" || e.target.id === "modalClose" || e.target.id === "btnCancel") {
+        if ($("fieldDialog").classList.contains("show")) { closeFieldDialog(); return; }
+        if ($("confirm").classList.contains("show")) { closeConfirm(); return; }
+        closeModal();
+        return;
+      }
+
+      if (e.target.closest("#btnSave")) { saveDetail(false); return; }
+      if (e.target.closest("#btnPublish")) { saveDetail(true); return; }
+      if (e.target.closest("#btnSaveFields")) { saveFields(); return; }
+
+      const edit = e.target.closest("[data-edit]");
+      if (edit && !state.form) {
+        const item = lines.find((l) => l.id === edit.dataset.edit);
+        if (item) openModal(item);
+        return;
+      }
+
+      const fieldsBtn = e.target.closest("[data-fields]");
+      if (fieldsBtn && !state.form) {
+        const item = lines.find((l) => l.id === fieldsBtn.dataset.fields);
+        if (item) openFieldsModal(item);
+        return;
+      }
+
+      const pub = e.target.closest("[data-pub]");
+      if (pub && !state.form) {
+        publishLine(pub.dataset.pub);
+        return;
+      }
+
+      const delLine = e.target.closest("[data-del-line]");
+      if (delLine) { requestDeleteLine(delLine.dataset.delLine); return; }
+
+      const st = e.target.closest("[data-toggle-status]");
+      if (st) {
+        const item = lines.find((l) => l.id === st.dataset.toggleStatus);
+        if (!item) return;
+        if (item.status === "on") {
+          const used = lineUsage(item);
+          const doOff = () => {
+            item.status = "off";
+            item.updatedAt = nowStr();
+            toast("已停用");
+            render();
+          };
+          if (used.length) {
+            askConfirm(`「${item.name}」已被${used.join("、")}使用。停用后不影响已有订单、配置及历史数据，但不再承接新业务。确认停用？`, doOff, "停用");
+          } else {
+            doOff();
+          }
+        } else {
+          askConfirm(`确认启用业务线「${item.name}」？启用后状态变为生效。`, () => {
+            item.status = "on";
+            item.updatedAt = nowStr();
+            toast("已启用，状态为生效");
+            render();
+          }, "启用");
+        }
+        return;
+      }
+
+      const pageBtn = e.target.closest("[data-page]");
+      if (pageBtn && !pageBtn.disabled) {
+        const p = Number(pageBtn.dataset.page);
+        if (p >= 1) { state.page = p; renderTable(); }
+        return;
+      }
+
+      // 暂隐藏提示词规则：模式切换入口已注释
+      // const ruleMode = e.target.closest("[data-rule-mode]");
+      // if (ruleMode && state.form) {
+      //   collectDetail();
+      //   state.form.ruleMode = ruleMode.dataset.ruleMode === "prompt" ? "prompt" : "condition";
+      //   applyRuleMode();
+      //   return;
+      // }
+
+      if (e.target.closest("#btnAddCond") && state.form) {
+        state.form.conditions.push(emptyCond());
+        renderRules();
+        return;
+      }
+
+      const setKind = e.target.closest("[data-set-kind]");
+      if (setKind && state.form) {
+        const c = findCond(setKind.dataset.cond);
+        if (c) {
+          c.kind = setKind.dataset.setKind;
+          c.op = "";
+          c.value = "";
+          c.filterOp = "";
+          c.filterValue = "";
+          c.agg = "count";
+          renderRules();
+        }
+        return;
+      }
+
+      const removeCond = e.target.closest("[data-remove]");
+      if (removeCond && state.form) {
+        state.form.conditions = state.form.conditions.filter((c) => c.id !== removeCond.dataset.remove);
+        if (!state.form.conditions.length) state.form.conditions = [emptyCond()];
+        renderRules();
+        return;
+      }
+
+      if (e.target.closest("#btnAddField") && state.form) { openFieldDialog(null); return; }
+      const fdEdit = e.target.closest("[data-fd-edit]");
+      if (fdEdit && state.form) { openFieldDialog(Number(fdEdit.dataset.fdEdit)); return; }
+      const fdDel = e.target.closest("[data-fd-del]");
+      if (fdDel && state.form) {
+        const idx = Number(fdDel.dataset.fdDel);
+        const f = state.form.fields[idx];
+        if (f.system) { toast("系统字段不可删除"); return; }
+        askConfirm(`确认删除字段「${f.name}」？`, () => {
+          state.form.fields.splice(idx, 1);
+          if (state.modalKind === "fields") renderFieldsModal();
+          else renderDetailModal();
+          toast("已删除");
+        }, "删除");
+        return;
+      }
+
+      if (e.target.id === "fdCancel") { closeFieldDialog(); return; }
+      if (e.target.id === "fdSave") { saveFieldDialog(); return; }
+      if (e.target.closest("#fdAddOpt")) {
+        const all = [...document.querySelectorAll("#fdOptList input")].map((el) => el.value);
+        all.push("");
+        renderDialogOptions(all);
+        const inputs = document.querySelectorAll("#fdOptList input");
+        if (inputs.length) inputs[inputs.length - 1].focus();
+        return;
+      }
+      const optDel = e.target.closest("[data-opt-del]");
+      if (optDel) {
+        const idx = Number(optDel.dataset.optDel);
+        const all = [...document.querySelectorAll("#fdOptList input")].map((el) => el.value);
+        all.splice(idx, 1);
+        renderDialogOptions(all);
+        return;
+      }
+
+      if (e.target.id === "confirmNo") { closeConfirm(); return; }
+      if (e.target.id === "confirmYes") {
+        const cb = state.confirmCb;
+        closeConfirm();
+        if (cb) cb();
+        return;
+      }
+
+      const tr = e.target.closest("tbody tr[data-row]");
+      if (tr && !state.form) { state.selectedId = tr.dataset.row; renderTable(); }
+    });
+
+    document.addEventListener("change", (e) => {
+      if (e.target.matches("[data-k='logic']") && state.form) {
+        state.form.logic = e.target.value;
+        renderRules();
+        return;
+      }
+
+      const condEl = e.target.closest("[data-cond]");
+      if (condEl && state.form) {
+        const c = findCond(condEl.dataset.cond);
+        if (!c) return;
+        const k = condEl.dataset.k;
+        if (k === "fieldKey") {
+          const [source, field] = (e.target.value || "").split(".");
+          c.source = source || "";
+          c.field = field || "";
+          c.op = "";
+          c.value = "";
+          c.filterOp = "";
+          c.filterValue = "";
+          c.agg = "count";
+          filterOpen = "";
+          closeMulti();
+          renderRules();
+          return;
+        }
+        if (e.target.matches("input[data-multi-val]")) {
+          const wrap = e.target.closest(".multi-wrap");
+          const boxes = wrap ? wrap.querySelectorAll("input[data-multi-val]") : [];
+          c[k] = [...boxes].filter((b) => b.checked).map((b) => b.dataset.multiVal);
+          const label = wrap && wrap.querySelector(".multi-btn span:first-child");
+          if (label) {
+            const selected = normalizeValueList(c[k]);
+            label.textContent = multiSummary(selected, k === "filterValue" ? "筛选值" : "请选择值");
+            label.classList.toggle("ph", !selected.length);
+          }
+          return;
+        }
+        if (k) {
+          c[k] = e.target.value;
+          if (k === "op" || k === "filterOp") {
+            const valueKey = k === "op" ? "value" : "filterValue";
+            c[valueKey] = isMultiOp(c[k]) ? [] : "";
+            closeMulti();
+            if (k === "filterOp") filterOpen = c.id;
+            setTimeout(() => renderRules(), 0);
+            return;
+          }
+          renderRules();
+        }
+        return;
+      }
+
+      if (e.target.matches("[data-fd-req]") && state.form) {
+        state.form.fields[Number(e.target.dataset.fdReq)].required = e.target.checked;
+        return;
+      }
+      if (e.target.matches("[data-fd-type]") && state.form) {
+        const f = state.form.fields[Number(e.target.dataset.fdType)];
+        if (!f.system) {
+          const next = e.target.value;
+          const wasOpt = isOptionType(f.type);
+          const nowOpt = isOptionType(next);
+          f.type = next;
+          if (nowOpt && !wasOpt) { f.options = f.options || []; f.defaultValue = ""; }
+          if (!nowOpt && wasOpt) f.options = [];
+          if (state.modalKind === "fields") renderFieldsModal();
+          else renderDetailModal();
+        }
+        return;
+      }
+      if (e.target.id === "fdType") {
+        const prevWasOpt = $("fdOptionsRow").style.display !== "none";
+        const nowOpt = isOptionType(e.target.value);
+        if (nowOpt && !prevWasOpt) renderDialogOptions([]);
+        if (!nowOpt && prevWasOpt) $("fdDefault").value = "";
+        syncFieldDialogMode();
+      }
+    });
+
+    document.addEventListener("input", (e) => {
+      if (e.target.id === "tableSearch") { state.query = e.target.value; state.page = 1; renderTable(); return; }
+      if (e.target.id === "fltName") { state.filters.name = e.target.value; state.page = 1; renderTable(); return; }
+      if (e.target.id === "fltTime") { state.filters.updatedAt = e.target.value; state.page = 1; renderTable(); return; }
+      if (e.target.matches("[data-fd-default]") && state.form) {
+        const f = state.form.fields[Number(e.target.dataset.fdDefault)];
+        if (f && !f.system) f.defaultValue = e.target.value;
+        return;
+      }
+      if (e.target.id === "fPrompt" && state.form) {
+        state.form.prompt = e.target.value;
+      }
+      const condEl = e.target.closest("[data-cond]");
+      if (condEl && state.form && (condEl.dataset.k === "value" || condEl.dataset.k === "filterValue")) {
+        const c = findCond(condEl.dataset.cond);
+        if (c) {
+          const key = condEl.dataset.k;
+          if (e.target.multiple) c[key] = [...e.target.selectedOptions].map((o) => o.value);
+          else if (isMultiOp(key === "filterValue" ? c.filterOp : c.op) && e.target.tagName === "INPUT") {
+            c[key] = normalizeValueList(e.target.value.replace(/\s*\|\s*/g, "|"));
+          } else {
+            c[key] = e.target.value;
+          }
+          if ((c.kind || "field") === "stat") {
+            const summary = filterSummary(c);
+            const label = document.querySelector(`[data-open-filter="${c.id}"] span`);
+            if (label) {
+              label.textContent = summary || "筛选条件";
+              label.classList.toggle("ph", !summary);
+            }
+            const note = document.querySelector(".filter-panel.show .note");
+            if (note) note.textContent = formatStatPreview(c);
+          }
+        }
+      }
+    });
+
+    render();
+  </script>
+</body>
+</html>
